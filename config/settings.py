@@ -11,9 +11,32 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.path.join(BASE_DIR, 'config')
+
+try:
+    with open(os.path.join(CONFIG_DIR, 'keys.json'), 'r') as fh:
+        keys = json.loads(fh.read())
+        fh.close()
+except FileNotFoundError:
+    msg = 'Configure keys.json in the settings folder'
+    raise ImproperlyConfigured(msg)
+
+
+def get_key(key, keys=keys):
+    """Retrieve a configuration key value from a key dictionary"""
+
+    try:
+        return keys[key]
+    except KeyError:
+        msg = (
+            'Set the "{}" setting in keys.json or the keys dictionary you '
+            'provided'
+        ).format(key)
+        raise ImproperlyConfigured(msg)
 
 
 # Quick-start development settings - unsuitable for production
